@@ -12,6 +12,9 @@ dependencies {
 }
 
 asciidoctor {
+    sourceDir 'src/asciidoc'
+    outputDir "$buildDir/gh-pages"
+
     dependsOn jrubyPrepare
     requires = ['asciidoctor-diagram']
     gemPath = jrubyPrepare.outputDir

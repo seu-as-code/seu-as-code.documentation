@@ -1,0 +1,26 @@
+plugins {
+    id 'org.asciidoctor.convert' version '1.5.3'
+    id 'com.github.jruby-gradle.base' version '1.1.5'
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    gems 'rubygems:asciidoctor-diagram:1.3.1'
+}
+
+asciidoctor {
+    dependsOn jrubyPrepare
+    requires = ['asciidoctor-diagram']
+    gemPath = jrubyPrepare.outputDir
+
+    attributes 'source-highlighter': 'coderay',
+        toc                 : 'left',
+        'toc-title'         : 'Table of Contents',
+        idprefix            : '',
+        idseparator         : '-'
+
+    options doctype: 'book'
+}

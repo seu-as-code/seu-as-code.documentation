@@ -6,7 +6,7 @@ v0.1, 2016-12-24
 :icons: font
 ifndef::imagesdir[:imagesdir: images]
 
-This is the documentation for SEU-as-code and it's sub projects.
+This is the documentation for SEU-as-code and it's subprojects.
 
 include::background.adoc[]
 

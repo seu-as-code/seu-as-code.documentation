@@ -21,8 +21,8 @@ have a look at the
 https://github.com/seu-as-code/seu-as-code.packages[SEU-as-code Package] repository
 or the https://bintray.com/seu-as-code/maven/[Bintray] repository.
 
-4. At this point you should add your SEU project to a version control system of
+5. At this point you should add your SEU project to a version control system of
 your choice.
 
-5. Finally, open a console and issue the following command to create your SEU:
+6. Finally, open a console and issue the following command to create your SEU:
 `gradlew bootstrapSeu`

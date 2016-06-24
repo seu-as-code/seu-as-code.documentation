@@ -46,7 +46,7 @@ But you probably soon find that you may need some customizations that are very s
 to your project or even your company. So where do you host your private software
 package artifacts? You have two options.
 
-1. *Private Company Repository:* this option is suitable for generic, company wide
+- *Private Company Repository:* this option is suitable for generic, company wide
 artifacts you want to share. For example, we have a custom package for IntelliJ Ultimate
 deployed at our repo that is used in all of our project SEUs.
 So probably you also have an artifact repository server like Nexus or Artifactory
@@ -60,7 +60,7 @@ repositories {
 }
 ```
 
-2. *Local SEU Repository:* this options is most useful for small and very SEU or
+- *Local SEU Repository:* this options is most useful for small and very SEU or
 project specific artifacts and customizations. Those artifacts are part of your
 SEU and should be versioned with the other SEU files.
 

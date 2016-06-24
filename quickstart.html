@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.3">
+<meta name="generator" content="Asciidoctor 1.5.4">
 <title>Quickstart</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
@@ -522,14 +522,49 @@ table.CodeRay td.code>pre{padding:0}
 <h2 id="quickstart">Quickstart</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p><em>TODO</em></p>
+<p>If you are still reading this documentation than you have decided to build the SEU
+for your next project as-code. <strong>Excellent choice!</strong> The first version of your SEU
+is up and running in 15 minutes.</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Download the latest SEU-as-code Archetype distribution from either
+<a href="https://bintray.com/seu-as-code/generic/seuac-archetype/_latestVersion">Bintray</a>
+or <a href="https://github.com/seu-as-code/seu-as-code.archetype/releases">GitHub</a>.</p>
+</li>
+<li>
+<p>Extract the archive to a custom location and rename the template project directory,
+e.g. <code>seubase</code>. For optimal isolation, you can use a virtual hard drive (VHD) on
+Windows or a sparse image disk file for Mac OSX.</p>
+</li>
+<li>
+<p>Customize the <code>build.gradle</code> file. Adjust the <code>ext</code> configuration section and
+set the <code>seuRoot</code> directory path and the <code>seuName</code> accordingly.</p>
+</li>
+<li>
+<p>Adjust the <code>dependencies</code> section and add the desired software packages using
+the <code>software</code> or <code>home</code> configurations. For a complete list of available packages
+have a look at the
+<a href="https://github.com/seu-as-code/seu-as-code.packages">SEU-as-code Package</a> repository
+or the <a href="https://bintray.com/seu-as-code/maven/">Bintray</a> repository.</p>
+</li>
+<li>
+<p>At this point you should add your SEU project to a version control system of
+your choice.</p>
+</li>
+<li>
+<p>Finally, open a console and issue the following command to create your SEU:
+<code>gradlew bootstrapSeu</code></p>
+</li>
+</ol>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2015-12-20 09:34:49 +01:00
+Last updated 2016-06-23 17:02:34 -07:00
 </div>
 </div>
 </body>

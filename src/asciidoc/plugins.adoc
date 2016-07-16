@@ -1,3 +1,9 @@
 == Plugins
 
-__TODO__
+=== Base Plugin
+
+=== Credentials Plugin
+
+=== Git Plugin
+
+=== SVN Plugin

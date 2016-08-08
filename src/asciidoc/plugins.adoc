@@ -17,7 +17,8 @@ attacker to access your systems.
 ==== Basic Usage
 
 Build script snippet for use in all Gradle versions, using the Bintray Maven repository:
-```groovy
+[source,groovy]
+----
 buildscript {
     repositories {
         mavenCentral()
@@ -38,7 +39,7 @@ Build script snippet for new, incubating, plugin mechanism introduced in Gradle 
 plugins {
     id 'de.qaware.seu.as.code.credentials' version '2.4.0.RC1'
 }
-```
+----
 
 ==== Tasks
 
@@ -103,24 +104,27 @@ The plugin defines the following closures in the `credentials` extension:
 
 First add the credentials for the `Nexus` service by invoking one of the following
 Gradle tasks, you will be asked for the username and password on the Console:
-```shell
+[source,shell]
+----
 $ ./gradlew setCredentials --service Nexus
 $ ./gradlew setCredentials --service Nexus --username fooUser
-```
+----
 
 You can also display and clear the credentials from the command line using the
 following Gradle tasks:
-```shell
+[source,shell]
+----
 $ ./gradlew displayCredentials --service Nexus
 $ ./gradlew clearCredentials --service Nexus
-```
+----
 
 ===== Using credentials in a build script
 
 Once you have set the credentials via the command line you can then use this
 credential information in your build script, e.g. in the repositories section,
 via the `credentials` extra property:
-```groovy
+[source,groovy]
+----
     repositories {
         mavenCentral()
         maven {
@@ -140,7 +144,7 @@ via the `credentials` extra property:
             }
         }
     }
-```
+----
 
 ===== Custom keychain or property file location
 
@@ -149,14 +153,215 @@ On MacOS this will be the user's default login keychain, and on Windows the
 `secure-credentials.properties` file is stored in the user's Gradle home dir.
 In case you want to override these locations you can define these using the
 `credentials` extension in your Gradle build file.
-```groovy
+[source,groovy]
+----
 credentials {
     keychainFile = "$projectDir/SEU-as-code.keychain"
     propertyFile = "$projectDir/secure-credentials.properties"
 }
-```
+----
 
 === Git Plugin
+
+A Gradle plugin for handling Git repositories. It provides basic tasks to init, clone
+commit, push and push Git repositories. This plugin does not require a Git CLI since
+it uses the JGit library under the hood. The repositories can be configured using the
+plugin extension.
+
+==== Basic Usage
+
+Build script snippet for use in all Gradle versions, using the Bintray Maven repository:
+[source,groovy]
+----
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url 'https://dl.bintray.com/seu-as-code/gradle-plugins'
+        }
+    }
+    dependencies {
+        classpath 'de.qaware.seu.as.code:seuac-git-plugin:2.3.0.RC2'
+    }
+}
+
+apply plugin: 'de.qaware.seu.as.code.git'
+----
+
+Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
+[source,groovy]
+----
+plugins {
+    id 'de.qaware.seu.as.code.git' version '2.3.0.RC2'
+}
+----
+
+==== Tasks
+
+The plugin defines the following tasks:
+
+[cols="1a,1a,1a,3a"]
+|===
+| Task name | Depends on | Type | Description
+
+| `gitInitAll`
+| all `gitInit<RepositoryName>` tasks
+| -
+| Performs a Git init for all defined repositories.
+
+| `gitCloneAll`
+| all `gitClone<RepositoryName>` tasks
+| -
+| Performs a Git clone for all defined repositories.
+
+| `gitPushAll`
+| all `gitPush<RepositoryName>` tasks
+| -
+| Performs a Git push for all defined repositories.
+
+| `gitPullAll`
+| all `gitPull<RepositoryName>` tasks
+| -
+| Performs a Git pull for all defined repositories.
+
+| `gitStatusAll`
+| all `gitStatus<RepositoryName>` tasks
+| -
+| Performs a Git status for all defined repositories.
+
+| `gitInit<RepositoryName>`
+| -
+| GitInitTask
+| Performs a Git init for the named Git repository.
+
+| `gitClone<RepositoryName>`
+| -
+| GitCloneTask
+| Performs a Git clone for the named Git repository.
+
+| `gitStatus<RepositoryName>`
+| -
+| GitStatusTask
+| Performs a Git status for the named Git repository.
+
+| `gitCommit<RepositoryName>`
+| -
+| GitCommitTask
+| Performs a Git commit for the named Git repository. Override message project property.
+
+| `gitPush<RepositoryName>`
+| -
+| GitPushTask
+| Performs a Git push for the named Git repository to remote origin.
+
+| `gitPull<RepositoryName>`
+| -
+| GitPullTask
+| Performs a Git pull for the named Git repository from remote origin.
+|===
+
+==== Extension
+
+The plugin defines the following extension properties in the `git` closure:
+
+[cols="1a,1a,1a,3a"]
+|===
+| Property name | Type | Default value | Description
+
+| `git`
+| NamedDomainObjectContainer<GitRepository>
+| -
+| Contains the named Git repository definitions.
+
+| `url`
+| String
+| -
+| The URL of the named Git repository. Include username and password in the URL.
+
+| `directory`
+| File
+| -
+| The local directory of the named Git repository.
+
+| `branch`
+| String
+| -
+| The branch name to use. Defaults to HEAD.
+If `singleBranch` is `true` this must be a valid refspec like `refs/heads/BRANCHNAME`.
+
+| `username`
+| String
+| -
+| The username used for authentication.
+
+| `password`
+| String
+| -
+| The password used for authentication.
+
+| `options`
+| GitOptions
+| -
+| The Git command options.
+|===
+
+==== Examples
+
+===== Defining Git repositories
+
+The following example defines the Git repository of the SEU-as-code plugins repo.
+The example does not hardcode the username and password properties, instead you
+should use either project properties or the SEU-as-code credentials plugin.
+
+[source,groovy]
+----
+git {
+    SeuAsCodePlugins {
+        url 'https://github.com/seu-as-code/seu-as-code.plugins.git'
+        directory file("$seuHome/codebase/seu-as-code.plugins/")
+        branch 'HEAD'
+        username gitUsername
+        password gitPassword
+
+        options {
+            clone {
+                singleBranch = false
+                cloneSubmodules = true
+                noCheckout = false
+                timeout = 300
+            }
+            pull {
+                rebase = true
+                timeout = 600
+            }
+            push {
+                dryRun = false
+                pushAll = true
+                pushTags = true
+                timeout = 200
+                force = true
+            }
+        }
+    }
+}
+----
+
+===== Working with Git repositories
+
+Once you have defined one or more Git repositories using the plugin extension,
+you can perform the support operations by calling the associated tasks. Most of
+the command options from the configuration extension can also be set as command
+line options.
+
+[source,shell]
+----
+$ ./gradlew gitCloneSeuAsCodePlugins
+$ ./gradlew gitPullAll --rebase true
+...
+$ ./gradlew gitCommitSeuAsCodePlugins --message "New feature added."
+$ ./gradlew gitPushAll --all
+----
+
 
 === Platform Plugin
 
@@ -170,7 +375,8 @@ you may require different implementations of the same task depending on the plat
 ==== Basic Usage
 
 Build script snippet for use in all Gradle versions, using the Bintray Maven repository:
-```groovy
+[source,groovy]
+----
 buildscript {
     repositories {
         mavenCentral()
@@ -184,14 +390,15 @@ buildscript {
 }
 
 apply plugin: 'de.qaware.seu.as.code.platform'
-```
+----
 
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
-```groovy
+[source,groovy]
+----
 plugins {
     id 'de.qaware.seu.as.code.platform' version '1.0.0'
 }
-```
+----
 
 ==== Extra Properties
 
@@ -246,7 +453,8 @@ The plugin defines the following closures in the `platform` extension:
 |===
 
 The following example shows the full extension configuration in code:
-```groovy
+[source,groovy]
+----
 platform {
     win { // add Windows specific code like dependencies or tasks here }
     mac { // add MacOS specific code like dependencies or tasks here }
@@ -254,7 +462,7 @@ platform {
     x86 { // add 32-bit specific stuff like dependencies or tasks here }
     x86_64 { // add 64-bit specific code like dependencies or tasks here }
 }
-```
+----
 
 ==== Examples
 
@@ -263,7 +471,8 @@ platform {
 The following example uses the extension configuration to add platform specific
 dependencies as well as platform specific task definitions.
 
-```groovy
+[source,groovy]
+----
 platform {
     win {
         dependencies {
@@ -285,25 +494,27 @@ platform {
         }
     }
 }
-```
+----
 
 ===== Platform specific dependencies
 
 The following example uses the `$osClassifier` extra property as classifier to
 add a platform specific dependency.
 
-```groovy
+[source,groovy]
+----
 dependencies {
     software "de.qaware.seu.as.code:seuac-environment:2.3.0:$osClassifier"
 }
-```
+----
 
 ===== Platform specific tasks
 
 This example uses static methods from the `Platform` class to enable tasks based
 on the current platform the build is running on.
 
-```groovy
+[source,groovy]
+----
 import static de.qaware.seu.as.code.plugins.platform.Platform.isWindows
 import static de.qaware.seu.as.code.plugins.platform.Platform.isMacOs
 
@@ -320,7 +531,7 @@ task helloWorldOnlyIfMac(group: 'Example') {
       println 'Hello World only if Mac.'
     }
 }
-```
+----
 
 === SVN Plugin
 
@@ -331,7 +542,8 @@ using an extension.
 ==== Basic Usage
 
 Build script snippet for use in all Gradle versions, using the Bintray Maven repository:
-```groovy
+[source,groovy]
+----
 buildscript {
     repositories {
         mavenCentral()
@@ -345,14 +557,15 @@ buildscript {
 }
 
 apply plugin: 'de.qaware.seu.as.code.svn'
-```
+----
 
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
-```groovy
+[source,groovy]
+----
 plugins {
     id 'de.qaware.seu.as.code.svn' version '2.1.1'
 }
-```
+----
 
 ==== Tasks
 
@@ -421,11 +634,12 @@ The plugin defines the following extension properties in the `subversion` closur
 
 ===== Defining SVN repositories
 
-The following example defines the SVN repository for the SEU-as-plugins repo.
+The following example defines the SVN repository for the SEU-as-code plugins repo.
 The example does not hardcode the username and password properties, instead you
-should use project properties or the SEU-as-code credentials plugin.
+should either use project properties or the SEU-as-code credentials plugin.
 
-```groovy
+[source,groovy]
+----
 subversion {
     SeuAsCodePlugins {
         url 'https://github.com/seu-as-code/seu-as-code.plugins'
@@ -434,7 +648,7 @@ subversion {
         password svnPassword
     }
 }
-```
+----
 
 ===== Working with SVN repositories
 
@@ -442,7 +656,8 @@ Once you have defined one or more SVN repositories using the plugin extension,
 you can perform a SVN checkout and update on each repository individually or on
 all defined repos.
 
-```shell
+[source,shell]
+----
 $ ./gradlew svnCheckoutSeuAsCodePlugins
 $ ./gradlew svnUpdateAll
-```
+----

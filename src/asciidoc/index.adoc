@@ -1,6 +1,6 @@
 = SEU-as-code Documentation
 M.-Leander Reimer <mario-leander.reimer@qaware.de>
-v0.3, 2016-08-08
+v0.4, 2016-08-08
 :toc:
 :homepage: https://seu-as-code.github.io/seu-as-code.documentation/
 :icons: font

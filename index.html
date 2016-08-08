@@ -621,11 +621,489 @@ your choice.</p>
 <div class="paragraph">
 <p>This section of the documentation is dedicated to the SEU-as-code plugins. They
 do the heavy lifting when used in a Gradle build. All of the plugins can be used
-independently, some of them can even be used outside of a SEU context.</p>
+independently, some of them can even be used standalone outside of an SEU context.</p>
 </div>
 <div class="sect2">
 <h3 id="base-plugin">Base Plugin</h3>
+<div class="paragraph">
+<p>A Gradle plugin to create SEU installations from code. It provides basic tasks to
+bootstrap and update the SEU and to install and update the software packages. The
+SEU can be configured and customized using the <code>seuAsCode</code> extension.</p>
+</div>
+<div class="sect3">
+<h4 id="basic-usage">Basic Usage</h4>
+<div class="paragraph">
+<p>Build script snippet for use in all Gradle versions, using the Bintray Maven repository:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            url <span class="string"><span class="delimiter">'</span><span class="content">https://dl.bintray.com/seu-as-code/gradle-plugins</span><span class="delimiter">'</span></span>
+        }
+    }
+    dependencies {
+        classpath <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code:seuac-base-plugin:2.4.0</span><span class="delimiter">'</span></span>
+    }
+}
 
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code.base</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">plugins {
+    id <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code.base</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">2.4.0</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="tasks">Tasks</h4>
+<div class="paragraph">
+<p>The plugin defines the following tasks:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0002%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task name</th>
+<th class="tableblock halign-left valign-top">Depends on</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>bootstrapSeu</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>createSeuacLayout</code>, <code>installSoftware</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Initial tasks to create the SEU from scratch.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>updateSeu</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>installSoftware</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Updates a the SEU installation and applies the latest configuration.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>destroySeu</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>DestroySeuTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Destroy the complete SEU and deletes all directories. So be careful!</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>createSeuacLayout</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>CreateSeuacLayoutTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Creates the basic directory layout for the SEU.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>applySoftware</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>ApplyConfigurationTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Apply the software configuration and install packages. New dependencies are installed, obsolete software will be removed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>applyHome</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>ApplyConfigurationTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Apply the home configuration and install packages. New dependencies are installed, obsolete software will be removed.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>runSoftwareHooks</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>RunHooksTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Runs any software hooks after the installation.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>runHomeHooks</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>RunHooksTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Runs any home hooks after the installation.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>createAsciiBanner</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>CreateAsciiBannerTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Creates the ASCII banner file.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>storeSeuacDb</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>StoreSeuacDbTask</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Store the current SEU software package configuration.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="configurations">Configurations</h4>
+<div class="paragraph">
+<p>The plugin defines the following configurations:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>seuac</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Used for dependencies that need to be put in the root classloader, e.g. SQL drivers</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>software</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Used for software dependencies that will be installed in the software directory.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>home</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Used for dependencies that will be installed in the home directory.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="extra-properties">Extra Properties</h4>
+<div class="paragraph">
+<p>The plugin defines the following extra properties, that may be used for platform
+specific behavior. This functionality will soon be removed from this plugin in
+favor of the platform plugin.</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Task name</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>osFamily</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>The OS family, either <code>windows</code>, <code>macos</code>, <code>unix</code> or <code>unknown</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>osClassifier</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>The OS classifier, either <code>win</code>, <code>mac</code>, <code>unix</code> or <code>???</code></p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>osArch</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>The OS architecture, either <code>x86_64</code> or <code>x86</code></p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="extension">Extension</h4>
+<div class="paragraph">
+<p>The plugin defines the following extension properties in the <code>seuAsCode</code> closure:</p>
+</div>
+<table class="tableblock frame-all grid-all spread">
+<colgroup>
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 16.6666%;">
+<col style="width: 50.0002%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Property name</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Default value</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>seuHome</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>String</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>The home directory for this SEU. Can be a VHD or any other valid directory.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>projectName</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>String</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>The project name for this SEU.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>layout</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>SeuacLayout</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Optional. Defines the directory layout for this SEU.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>datastore</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>SeuacDatastore</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Optional. Defines the datastore used to persist the SEU configuration.
+Currently H2 (use jdbc:h2:seuac as URL) and MapDB (use file:mapdb:seuac as URL)
+are supported.</p>
+</div></div></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p><code>banner</code></p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>SeuacBanner</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>-</p>
+</div></div></td>
+<td class="tableblock halign-left valign-top"><div><div class="paragraph">
+<p>Optional. Defines the ASCII banner configuration.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sect3">
+<h4 id="examples">Examples</h4>
+<div class="sect4">
+<h5 id="defining-basic-seu-properties">Defining basic SEU properties</h5>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">seuAsCode {
+    <span class="comment">// these two properties are mandatory</span>
+    seuHome <span class="string"><span class="delimiter">'</span><span class="content">S:</span><span class="delimiter">'</span></span>
+    projectName <span class="string"><span class="delimiter">'</span><span class="content">SEU-as-code</span><span class="delimiter">'</span></span>
+
+    <span class="comment">// the other properties are optional</span>
+    layout {
+        codebase <span class="string"><span class="delimiter">'</span><span class="content">S:/codebase/</span><span class="delimiter">'</span></span>
+        docbase <span class="string"><span class="delimiter">'</span><span class="content">S:/docbase/</span><span class="delimiter">'</span></span>
+        home <span class="string"><span class="delimiter">'</span><span class="content">S:/home/</span><span class="delimiter">'</span></span>
+        repository <span class="string"><span class="delimiter">'</span><span class="content">S:/repository/</span><span class="delimiter">'</span></span>
+        software <span class="string"><span class="delimiter">'</span><span class="content">S:/software/</span><span class="delimiter">'</span></span>
+        temp <span class="string"><span class="delimiter">'</span><span class="content">S:/temp/</span><span class="delimiter">'</span></span>
+    }
+    datastore {
+        <span class="comment">// this is for backwards compatibility to H2 1.3.x</span>
+        <span class="comment">// for latest H2 1.4.x you can enable the MVStore</span>
+        url <span class="string"><span class="delimiter">'</span><span class="content">jdbc:h2:./seuac;mv_store=false</span><span class="delimiter">'</span></span>
+
+        <span class="comment">// use this URL if you want to store things with MapDB</span>
+        <span class="comment">// url 'file:mapdb:./seuac'</span>
+
+        user <span class="string"><span class="delimiter">'</span><span class="content">sa</span><span class="delimiter">'</span></span>
+        password <span class="string"><span class="delimiter">'</span><span class="content">sa</span><span class="delimiter">'</span></span>
+    }
+    banner {
+        font <span class="string"><span class="delimiter">'</span><span class="content">slant</span><span class="delimiter">'</span></span>
+        reflection <span class="string"><span class="delimiter">'</span><span class="content">no</span><span class="delimiter">'</span></span>
+        adjustment <span class="string"><span class="delimiter">'</span><span class="content">center</span><span class="delimiter">'</span></span>
+        stretch <span class="string"><span class="delimiter">'</span><span class="content">yes</span><span class="delimiter">'</span></span>
+        width <span class="integer">80</span>
+    }
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="install-software-as-dependencies">Install software as dependencies</h5>
+<div class="paragraph">
+<p>The plugin configurations are used to determine the installation directory of the
+software package dependencies. You have to specify a Maven repository where these
+dependencies are located, in this case we used Bintray and JCenter.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">repositories {
+    jcenter()
+    maven { url <span class="string"><span class="delimiter">'</span><span class="content">https://dl.bintray.com/seu-as-code/maven</span><span class="delimiter">'</span></span> }
+}
+dependencies {
+    <span class="comment">// dependencies for the Groovy root classloader</span>
+    seuac <span class="string"><span class="delimiter">'</span><span class="content">org.codehaus.groovy.modules.scriptom:scriptom:1.6.0</span><span class="delimiter">'</span></span>
+    seuac <span class="string"><span class="delimiter">'</span><span class="content">com.h2database:h2:1.4.188</span><span class="delimiter">'</span></span>
+
+    <span class="comment">// mandatory dependencies for basic SEU setup</span>
+    home <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code:seuac-home:2.0.0</span><span class="delimiter">'</span></span>
+    software <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code:seuac-environment:2.0.0:jdk8</span><span class="delimiter">'</span></span>
+
+    <span class="comment">// additional dependencies for a Groovy development environment</span>
+    software <span class="string"><span class="delimiter">'</span><span class="content">org.gradle:gradle:2.14</span><span class="delimiter">'</span></span>
+    software <span class="string"><span class="delimiter">'</span><span class="content">org.groovy-lang:groovy:2.4.4</span><span class="delimiter">'</span></span>
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="building-platform-specific-seus">Building platform specific SEUs</h5>
+<div class="paragraph">
+<p>In case you want to build platform specific SEUs with a lot of differences you can
+use the platform closure with its nested closures for each supported platform. This
+functionality will soon be removed from this plugin in favor of the platform plugin.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">platform {
+    win { <span class="comment">// add Windows specific code like dependencies or tasks here }</span>
+    mac { <span class="comment">// add MacOS specific code like dependencies or tasks here }</span>
+    unix { <span class="comment">// add Unix or Linux specific stuff like dependencies or tasks here }</span>
+    x86 { <span class="comment">// add 32-bit specific stuff like dependencies or tasks here }</span>
+    x86_64 { <span class="comment">// add 64-bit specific code like dependencies or tasks here }</span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="credentials-plugin">Credentials Plugin</h3>
@@ -637,7 +1115,7 @@ practice, it is just plain stupid since this makes it really easy for a potentia
 attacker to access your systems.</p>
 </div>
 <div class="sect3">
-<h4 id="basic-usage">Basic Usage</h4>
+<h4 id="basic-usage-2">Basic Usage</h4>
 <div class="paragraph">
 <p>Build script snippet for use in all Gradle versions, using the Bintray Maven repository:</p>
 </div>
@@ -655,19 +1133,22 @@ attacker to access your systems.</p>
     }
 }
 
-apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code.credentials</span><span class="delimiter">'</span></span>
-<span class="error">`</span><span class="error">`</span><span class="error">`</span>
-
-Build script snippet <span class="keyword">for</span> <span class="keyword">new</span>, incubating, plugin mechanism introduced <span class="keyword">in</span> Gradle <span class="float">2.1</span>:
-<span class="error">`</span><span class="error">`</span><span class="error">`</span>groovy
-plugins {
+apply <span class="key">plugin</span>: <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code.credentials</span><span class="delimiter">'</span></span></code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">plugins {
     id <span class="string"><span class="delimiter">'</span><span class="content">de.qaware.seu.as.code.credentials</span><span class="delimiter">'</span></span> version <span class="string"><span class="delimiter">'</span><span class="content">2.4.0.RC1</span><span class="delimiter">'</span></span>
 }</code></pre>
 </div>
 </div>
 </div>
 <div class="sect3">
-<h4 id="tasks">Tasks</h4>
+<h4 id="tasks-2">Tasks</h4>
 <div class="paragraph">
 <p>The plugin defines the following tasks:</p>
 </div>
@@ -733,7 +1214,7 @@ plugins {
 </table>
 </div>
 <div class="sect3">
-<h4 id="extra-properties">Extra Properties</h4>
+<h4 id="extra-properties-2">Extra Properties</h4>
 <div class="paragraph">
 <p>The plugin defines the following extra extension properties:</p>
 </div>
@@ -771,7 +1252,7 @@ plugins {
 </table>
 </div>
 <div class="sect3">
-<h4 id="extension">Extension</h4>
+<h4 id="extension-2">Extension</h4>
 <div class="paragraph">
 <p>The plugin defines the following closures in the <code>credentials</code> extension:</p>
 </div>
@@ -823,7 +1304,7 @@ plugins {
 </table>
 </div>
 <div class="sect3">
-<h4 id="examples">Examples</h4>
+<h4 id="examples-2">Examples</h4>
 <div class="sect4">
 <h5 id="command-line-usage">Command line usage</h5>
 <div class="paragraph">
@@ -907,7 +1388,7 @@ it uses the JGit library under the hood. The repositories can be configured usin
 plugin extension.</p>
 </div>
 <div class="sect3">
-<h4 id="basic-usage-2">Basic Usage</h4>
+<h4 id="basic-usage-3">Basic Usage</h4>
 <div class="paragraph">
 <p>Build script snippet for use in all Gradle versions, using the Bintray Maven repository:</p>
 </div>
@@ -940,7 +1421,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="tasks-2">Tasks</h4>
+<h4 id="tasks-3">Tasks</h4>
 <div class="paragraph">
 <p>The plugin defines the following tasks:</p>
 </div>
@@ -1118,7 +1599,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </table>
 </div>
 <div class="sect3">
-<h4 id="extension-2">Extension</h4>
+<h4 id="extension-3">Extension</h4>
 <div class="paragraph">
 <p>The plugin defines the following extension properties in the <code>git</code> closure:</p>
 </div>
@@ -1241,7 +1722,7 @@ If <code>singleBranch</code> is <code>true</code> this must be a valid refspec l
 </table>
 </div>
 <div class="sect3">
-<h4 id="examples-2">Examples</h4>
+<h4 id="examples-3">Examples</h4>
 <div class="sect4">
 <h5 id="defining-git-repositories">Defining Git repositories</h5>
 <div class="paragraph">
@@ -1314,7 +1795,7 @@ But usually you need to use different dependency versions between these platform
 you may require different implementations of the same task depending on the platform.</p>
 </div>
 <div class="sect3">
-<h4 id="basic-usage-3">Basic Usage</h4>
+<h4 id="basic-usage-4">Basic Usage</h4>
 <div class="paragraph">
 <p>Build script snippet for use in all Gradle versions, using the Bintray Maven repository:</p>
 </div>
@@ -1347,7 +1828,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="extra-properties-2">Extra Properties</h4>
+<h4 id="extra-properties-3">Extra Properties</h4>
 <div class="paragraph">
 <p>The plugin defines the following extra properties, that may be used for platform specific behaviour:</p>
 </div>
@@ -1391,7 +1872,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </table>
 </div>
 <div class="sect3">
-<h4 id="extension-3">Extension</h4>
+<h4 id="extension-4">Extension</h4>
 <div class="paragraph">
 <p>The plugin defines the following closures in the <code>platform</code> extension:</p>
 </div>
@@ -1499,7 +1980,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="examples-3">Examples</h4>
+<h4 id="examples-4">Examples</h4>
 <div class="sect4">
 <h5 id="basic-extension-configuration">Basic extension configuration</h5>
 <div class="paragraph">
@@ -1583,7 +2064,7 @@ SVN repositories and update local directories. The repositories can be configure
 using an extension.</p>
 </div>
 <div class="sect3">
-<h4 id="basic-usage-4">Basic Usage</h4>
+<h4 id="basic-usage-5">Basic Usage</h4>
 <div class="paragraph">
 <p>Build script snippet for use in all Gradle versions, using the Bintray Maven repository:</p>
 </div>
@@ -1616,7 +2097,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </div>
 </div>
 <div class="sect3">
-<h4 id="tasks-3">Tasks</h4>
+<h4 id="tasks-4">Tasks</h4>
 <div class="paragraph">
 <p>The plugin defines the following tasks:</p>
 </div>
@@ -1696,7 +2177,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </table>
 </div>
 <div class="sect3">
-<h4 id="extension-4">Extension</h4>
+<h4 id="extension-5">Extension</h4>
 <div class="paragraph">
 <p>The plugin defines the following extension properties in the <code>subversion</code> closure:</p>
 </div>
@@ -1790,7 +2271,7 @@ apply <span class="key">plugin</span>: <span class="string"><span class="delimit
 </table>
 </div>
 <div class="sect3">
-<h4 id="examples-4">Examples</h4>
+<h4 id="examples-5">Examples</h4>
 <div class="sect4">
 <h5 id="defining-svn-repositories">Defining SVN repositories</h5>
 <div class="paragraph">
@@ -1940,7 +2421,7 @@ SEU and should be versioned with the other SEU files.</p>
 <div id="footer">
 <div id="footer-text">
 Version 0.4<br>
-Last updated 2016-08-08 18:20:22 +02:00
+Last updated 2016-08-08 18:31:58 +02:00
 </div>
 </div>
 </body>

@@ -1,6 +1,6 @@
 = SEU-as-code Documentation
 M.-Leander Reimer <mario-leander.reimer@qaware.de>
-v0.2, 2016-06-23
+v0.3, 2016-08-08
 :toc:
 :homepage: https://seu-as-code.github.io/seu-as-code.documentation/
 :icons: font
@@ -9,8 +9,6 @@ ifndef::imagesdir[:imagesdir: images]
 include::background.adoc[]
 
 include::quickstart.adoc[]
-
-include::usage.adoc[]
 
 include::plugins.adoc[]
 
